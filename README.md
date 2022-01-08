@@ -1,7 +1,7 @@
 # Central repository for testing all the other projects online.
 
-In order to access a specific project enter project name after repository name.  
-Example: to access mytask project enter zagirovaa.github.io/mytasks  
+To access mytasks project enter zagirovaa.github.io/mytasks  
+All the other projects should be accessable in the same way.
 
 Current available projects:
 - mytasks
