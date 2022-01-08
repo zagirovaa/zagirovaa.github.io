@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="has-navbar-fixed-top">
     <head>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,7 +13,7 @@
     </head>
     <body>
         <div id="app">
-            <nav class="navbar is-info" role="navigation" aria-label="main navigation">
+            <nav class="navbar is-fixed-top is-info" role="navigation" aria-label="main navigation">
                 <div class="navbar-brand">
                     <a class="navbar-item">
                         <h4 class="has-text-weight-bold is-size-4">MyTasks</h4>
@@ -48,17 +48,17 @@
                         </div>
                         <a class="navbar-item" id="about-button">About</a>
                     </div>
-                    <div class="navbar-end">
+                    <div class="navbar-end is-flex is-align-items-center">
                         <a class="navbar-item">&#171;</a>
                         <a class="navbar-item">&#8249;</a>
-                        <span class="tag has-text-white has-background-info is-medium m-3">0 of 0</span>
+                        <span class="tag has-text-white has-background-info is-medium">0 of 0</span>
                         <a class="navbar-item">&#8250;</a>
                         <a class="navbar-item">&#187;</a>
                     </div>
                 </div>
             </nav>
             <div class="columns p-0 m-0">
-                <div class="column no-margin-right is-5-tablet is-4-desktop is-3-widescreen">
+                <div class="column no-padding-right is-5-tablet is-4-desktop is-3-widescreen">
                     <nav id="groups-panel" class="panel is-shadowless">
                         <p class="panel-heading is-radiusless">
                             Groups
