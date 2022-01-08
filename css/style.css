@@ -1,0 +1,22 @@
+html {
+    overflow: hidden;
+}
+
+.card {
+    background-color: transparent;
+    width: 100%;
+}
+
+@media only screen and (max-width: 768px) {
+    .no-margin-right {
+        margin-right: 0 !important;
+    }
+}
+
+@media only screen and (max-width: 1023px) {
+    .navbar-end {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

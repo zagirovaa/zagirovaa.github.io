@@ -1,0 +1,23 @@
+{
+    "short_name": "MyTasks",
+    "name": "MyTasks",
+    "icons": [
+        {
+            "src": "assets/images/icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "assets/images/icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "id": "index.html",
+    "start_url": ".",
+    "background_color": "#3367D6",
+    "theme_color": "#3367D6",
+    "display": "standalone",
+    "description": "Save your daily tasks devided by categories",
+    "scope": "."
+}

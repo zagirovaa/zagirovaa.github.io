@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#3367D6">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="manifest" href="manifest.json">
+        <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+        <title>MyTasks</title>
+    </head>
+    <body class="has-navbar-fixed-top">
+        <div id="app">
+            <nav class="navbar is-fixed-top is-info" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                    <a class="navbar-item">
+                        <h4 class="has-text-weight-bold is-size-4">MyTasks</h4>
+                    </a>
+                    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMain">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
+                <div id="navbarMain" class="navbar-menu">
+                    <div class="navbar-start">
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">Group</a>
+                            <div class="navbar-dropdown">
+                                <a class="navbar-item">Add new group</a>
+                                <a class="navbar-item">Edit current group</a>
+                                <a class="navbar-item">Delete current group</a>
+                                <hr class="navbar-divider">
+                                <a class="navbar-item">Clear all groups</a>
+                            </div>
+                        </div>
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">Task</a>
+                            <div class="navbar-dropdown">
+                                <a class="navbar-item">Add new task</a>
+                                <a class="navbar-item">Edit current task</a>
+                                <a class="navbar-item">Delete current task</a>
+                                <hr class="navbar-divider">
+                                <a class="navbar-item">Clear all tasks</a>
+                            </div>
+                        </div>
+                        <a class="navbar-item" id="about-button">About</a>
+                    </div>
+                    <div class="navbar-end">
+                        <a class="navbar-item">&#171;</a>
+                        <a class="navbar-item">&#8249;</a>
+                        <span class="tag has-text-white has-background-info is-medium m-3">0 of 0</span>
+                        <a class="navbar-item">&#8250;</a>
+                        <a class="navbar-item">&#187;</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="columns p-5">
+                <div class="column p-0 mt-1 mr-3 mb-3 no-margin-right is-5-tablet is-4-desktop is-3-widescreen">
+                    <nav id="groups-panel" class="panel is-shadowless">
+                        <p class="panel-heading is-radiusless">
+                            Groups
+                            <span id="groups-count" class="tag is-dark is-pulled-right">0</span>
+                        </p>
+                    </nav>
+                </div>
+                <div class="column p-0 mt-1 mb-3">
+                    <nav class="panel is-shadowless">
+                        <p class="panel-heading is-radiusless">
+                            Tasks
+                            <span class="tag is-dark is-pulled-right">0</span>
+                        </p>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="js/app.js"></script>
+    </body>
+</html>
