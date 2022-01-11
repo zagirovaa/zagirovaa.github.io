@@ -44,11 +44,11 @@ export default class {
 
     toJSON() {
         return {
-            'uuid': this.#uuid,
-            'title': this.#title,
-            'message': this.#message,
-            'created': this.#created,
-            'active': this.#active
+            "uuid": this.#uuid,
+            "title": this.#title,
+            "message": this.#message,
+            "created": this.#created,
+            "active": this.#active
         };
     };
 

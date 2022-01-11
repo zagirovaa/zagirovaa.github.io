@@ -1,11 +1,11 @@
-import Group from '../js/Group.js';
+import Group from "../js/Group.js";
 import { 
         myTasks, 
         saveData, 
         groupExists, 
         getActiveGroup,
         getIndexByUUID,
-        makeGroupActive } from '../js/app.js';
+        makeGroupActive } from "../js/app.js";
 
 
 export default class GroupModal {
@@ -15,26 +15,26 @@ export default class GroupModal {
     constructor(mode) {
         this.#mode = mode;
         if (this.#mode) {
-            this.#title = 'Edit group';
+            this.#title = "Edit group";
         } else {
-            this.#title = 'Add group';
+            this.#title = "Add group";
         };
     };
 
     show() {
-        const app = document.getElementById('app');
-        app.insertAdjacentHTML('beforeend', this.render());
-        const groupModalClose = document.querySelectorAll('.group-modal-close');
-        const groupModalApplyBtn = document.getElementById('group-modal-apply');
-        const groupModalInput = document.getElementById('group-modal-input');
+        const app = document.getElementById("app");
+        app.insertAdjacentHTML("beforeend", this.render());
+        const groupModalClose = document.querySelectorAll(".group-modal-close");
+        const groupModalApplyBtn = document.getElementById("group-modal-apply");
+        const groupModalInput = document.getElementById("group-modal-input");
         groupModalClose.forEach(el => {
-            el.addEventListener('click', GroupModal.close);
+            el.addEventListener("click", GroupModal.close);
         });
-        groupModalApplyBtn.addEventListener('click', () => {
+        groupModalApplyBtn.addEventListener("click", () => {
             this.apply(this.#mode);
         });
-        groupModalInput.addEventListener('keyup', event => {
-            if (event.key === 'Enter') {
+        groupModalInput.addEventListener("keyup", event => {
+            if (event.key === "Enter") {
                 event.preventDefault();
                 groupModalApplyBtn.click();
             };
@@ -47,14 +47,14 @@ export default class GroupModal {
     };
 
     apply(mode) {
-        const groupName = document.getElementById('group-modal-input').value.trim() || '';
+        const groupName = document.getElementById("group-modal-input").value.trim() || "";
         if (groupName) {
             if (groupExists(groupName)) {
-                alert('These is already a group with an identical name.');
+                alert("These is already a group with an identical name.");
             } else {
                 if (mode) {
                     const activeGroup = getActiveGroup();
-                    const groupModalInput = document.getElementById('group-modal-input');
+                    const groupModalInput = document.getElementById("group-modal-input");
                     const activePanelBlock = document.getElementById(activeGroup.uuid);
                     const newGroupName = groupModalInput.value;
                     activePanelBlock.textContent = newGroupName;
@@ -62,32 +62,32 @@ export default class GroupModal {
                     saveData();
                 } else {
                     const newGroup = new Group(groupName);
-                    const groupPanel = document.getElementById('groups-panel');
-                    const groupCount = document.getElementById('groups-count');
+                    const groupPanel = document.getElementById("groups-panel");
+                    const groupCount = document.getElementById("groups-count");
                     if (! myTasks.length)  {
                         newGroup.active = true;
                     };
                     myTasks.push(newGroup);
                     saveData();
-                    groupPanel.insertAdjacentHTML('beforeend', `
+                    groupPanel.insertAdjacentHTML("beforeend", `
                         ${myTasks.length == 1 ? 
                         `<a id="${newGroup.uuid}" class="panel-block is-radiusless has-background-info has-text-white">${newGroup.name}</a>` 
                         : `<a id="${newGroup.uuid}" class="panel-block is-radiusless">${newGroup.name}</a>`}
                     `);
                     groupCount.textContent = myTasks.length;
-                    document.getElementById(newGroup.uuid).addEventListener('click', el => {
+                    document.getElementById(newGroup.uuid).addEventListener("click", el => {
                         makeGroupActive(newGroup.uuid);
                     });
                 };
                 GroupModal.close();
             };
         } else {
-            alert('Enter group name.');
+            alert("Enter group name.");
         };
     };
 
     static close() {
-        document.getElementById('group-modal').remove();
+        document.getElementById("group-modal").remove();
     };
 
     render() {

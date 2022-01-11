@@ -1,4 +1,4 @@
-import Task from './Task.js';
+import Task from "./Task.js";
 
 
 export default class {
@@ -56,10 +56,10 @@ export default class {
     };
     toJSON() {
         return {
-            'uuid': this.#uuid,
-            'name': this.#name,
-            'tasks': this.#tasks,
-            'active': this.#active
+            "uuid": this.#uuid,
+            "name": this.#name,
+            "tasks": this.#tasks,
+            "active": this.#active
         };
     };
 

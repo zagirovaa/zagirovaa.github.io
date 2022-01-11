@@ -1,57 +1,57 @@
-import AboutModal from '../components/AboutModal.js';
-import GroupModal from '../components/GroupModal.js';
+import AboutModal from "../components/AboutModal.js";
+import GroupModal from "../components/GroupModal.js";
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('../sw.js', { scope: '.' }).then(reg => {
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("../sw.js", { scope: "." }).then(reg => {
         if(reg.installing) {
-            console.log('Service worker installing');
+            console.log("Service worker installing");
         } else if(reg.waiting) {
-            console.log('Service worker installed');
+            console.log("Service worker installed");
         } else if(reg.active) {
-            console.log('Service worker active');
+            console.log("Service worker active");
         };
     }).catch(function(error) {
-        console.log('Registration failed with ' + error);
+        console.log("Registration failed with " + error);
     });
 };
 
 let myTasks = [];
 
 const aboutModalContext = {
-    'title': 'About',
-    'name': 'MyTasks',
-    'version': '0.3.5',
-    'developer': 'Zagirov Abdul Askerovich'
+    "title": "About",
+    "name": "MyTasks",
+    "version": "0.3.5",
+    "developer": "Zagirov Abdul Askerovich"
 };
 
 const MODE = {
-    'ADD': 0,
-    'EDIT': 1
+    "ADD": 0,
+    "EDIT": 1
 };
 
 loadData();
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
     setMenuItemsEventListeners();
-    const navbarBurger = document.querySelector('.navbar-burger');
-    navbarBurger.addEventListener('click', () => {
+    const navbarBurger = document.querySelector(".navbar-burger");
+    navbarBurger.addEventListener("click", () => {
         const target = document.getElementById(navbarBurger.dataset.target);
-        navbarBurger.classList.toggle('is-active');
-        target.classList.toggle('is-active');
+        navbarBurger.classList.toggle("is-active");
+        target.classList.toggle("is-active");
     });
 });
 
 
 function getData() {
 
-    myTasks = JSON.parse(localStorage.getItem('MyTasks')) || [];
+    myTasks = JSON.parse(localStorage.getItem("MyTasks")) || [];
 
 };
 
 
 function saveData() {
 
-    localStorage.setItem('MyTasks', JSON.stringify(myTasks));
+    localStorage.setItem("MyTasks", JSON.stringify(myTasks));
 
 };
 
@@ -60,18 +60,18 @@ function loadData() {
 
     getData();
     if (myTasks.length) {
-        const groupsPanel = document.getElementById('groups-panel');
+        const groupsPanel = document.getElementById("groups-panel");
         const activeGroup = getActiveGroup();
-        const groupCount = document.getElementById('groups-count');
+        const groupCount = document.getElementById("groups-count");
         const renderText = myTasks.reduce((result, current) => {
             result += `<a id="${current.uuid}" class="panel-block is-radiusless">${current.name}</a>`;
             return result;
-        }, '');
-        groupsPanel.insertAdjacentHTML('beforeend', renderText);
+        }, "");
+        groupsPanel.insertAdjacentHTML("beforeend", renderText);
         drawActiveGroup(activeGroup.uuid);
         groupCount.textContent = myTasks.length;
         myTasks.forEach(el => {
-            document.getElementById(el.uuid).addEventListener('click', () => {
+            document.getElementById(el.uuid).addEventListener("click", () => {
                 makeGroupActive(el.uuid);
             });
         });
@@ -126,7 +126,7 @@ function drawActiveGroup(uuid) {
 
     if (myTasks.length) {
         const activePanelBlock = document.getElementById(uuid);
-        activePanelBlock.classList.add('has-background-info', 'has-text-white');
+        activePanelBlock.classList.add("has-background-info", "has-text-white");
     }
 
 }
@@ -136,8 +136,8 @@ function makeGroupActive(uuid) {
 
     const currentActiveGroup = document.getElementById(getActiveGroup().uuid);
     const newActiveGroup = document.getElementById(uuid);
-    currentActiveGroup.classList.remove('has-background-info', 'has-text-white');
-    newActiveGroup.classList.add('has-background-info', 'has-text-white');
+    currentActiveGroup.classList.remove("has-background-info", "has-text-white");
+    newActiveGroup.classList.add("has-background-info", "has-text-white");
     myTasks[getIndexByUUID(getActiveGroup().uuid)].active = false;
     myTasks[getIndexByUUID(uuid)].active = true;
     saveData();
@@ -147,48 +147,48 @@ function makeGroupActive(uuid) {
 
 function setMenuItemsEventListeners() {
 
-    const menuItems = Array.from(document.querySelectorAll('a.navbar-item'));
+    const menuItems = Array.from(document.querySelectorAll("a.navbar-item"));
     menuItems.forEach(el => {
         const menuText = el.textContent;
         switch (menuText) {
-            case 'Add new group':
-                el.addEventListener('click', addGroup);
+            case "Add new group":
+                el.addEventListener("click", addGroup);
                 break;
-            case 'Edit current group':
-                el.addEventListener('click', editGroup);
+            case "Edit current group":
+                el.addEventListener("click", editGroup);
                 break;
-            case 'Delete current group':
-                el.addEventListener('click', deleteGroup);
+            case "Delete current group":
+                el.addEventListener("click", deleteGroup);
                 break;
-            case 'Clear all groups':
-                el.addEventListener('click', clearGroups);
+            case "Clear all groups":
+                el.addEventListener("click", clearGroups);
                 break;
-            case 'Add new task':
-                el.addEventListener('click', addTask);
+            case "Add new task":
+                el.addEventListener("click", addTask);
                 break;
-            case 'Edit current task':
-                el.addEventListener('click', editTask);
+            case "Edit current task":
+                el.addEventListener("click", editTask);
                 break;
-            case 'Delete current task':
-                el.addEventListener('click', deleteTask);
+            case "Delete current task":
+                el.addEventListener("click", deleteTask);
                 break;
-            case 'Clear all tasks':
-                el.addEventListener('click', clearTasks);
+            case "Clear all tasks":
+                el.addEventListener("click", clearTasks);
                 break;
-            case 'About':
-                el.addEventListener('click', showAbout);
+            case "About":
+                el.addEventListener("click", showAbout);
                 break;
-            case '&#171;':
-                el.addEventListener('click', moveToFirstPage);
+            case "&#171;":
+                el.addEventListener("click", moveToFirstPage);
                 break;
-            case '&#8249;':
-                el.addEventListener('click', moveToPreviousPage);
+            case "&#8249;":
+                el.addEventListener("click", moveToPreviousPage);
                 break;
-            case '&#8250;':
-                el.addEventListener('click', moveToNextPage);
+            case "&#8250;":
+                el.addEventListener("click", moveToNextPage);
                 break;
-            case '&#187;':
-                el.addEventListener('click', moveToLastPage);
+            case "&#187;":
+                el.addEventListener("click", moveToLastPage);
                 break;
         };
     });
@@ -210,7 +210,7 @@ function editGroup() {
         const groupModal = new GroupModal(MODE.EDIT);
         groupModal.show();
     } else {
-        alert('No active group.')
+        alert("No active group.")
     };
 
 };
@@ -220,7 +220,7 @@ function deleteGroup() {
 
     const activeGroupID = getActiveGroup().uuid;
     const currentActiveIndex = getIndexByUUID(activeGroupID);
-    const groupCount = document.getElementById('groups-count');
+    const groupCount = document.getElementById("groups-count");
     if (myTasks.length > 1) {
         if (myTasks[currentActiveIndex - 1]) {
             makeGroupActive(myTasks[currentActiveIndex - 1].uuid);
