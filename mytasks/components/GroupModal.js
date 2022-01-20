@@ -1,24 +1,25 @@
 import Group from "../js/Group.js";
-import { 
-        myTasks, 
-        saveData, 
-        groupExists, 
-        getActiveGroup,
-        getIndexByUUID,
-        makeGroupActive } from "../js/app.js";
+import {
+    saveData, 
+    groupExists, 
+    getActiveGroup,
+    getGroupIndex, 
+    toggleActiveGroup
+} from "../js/app.js";
 
 
 export default class GroupModal {
 
-    #title; #mode;
+    #title; #mode; #local_db;
     
-    constructor(mode) {
+    constructor(mode, local_db) {
         this.#mode = mode;
         if (this.#mode) {
             this.#title = "Edit group";
         } else {
             this.#title = "Add group";
         };
+        this.#local_db = local_db;
     };
 
     show() {
@@ -58,25 +59,25 @@ export default class GroupModal {
                     const activePanelBlock = document.getElementById(activeGroup.uuid);
                     const newGroupName = groupModalInput.value;
                     activePanelBlock.textContent = newGroupName;
-                    myTasks[getIndexByUUID(activeGroup.uuid)].name = newGroupName;
+                    this.#local_db[getGroupIndex(activeGroup.uuid)].name = newGroupName;
                     saveData();
                 } else {
                     const newGroup = new Group(groupName);
-                    const groupPanel = document.getElementById("groups-panel");
-                    const groupCount = document.getElementById("groups-count");
-                    if (! myTasks.length)  {
+                    const groupsPanel = document.getElementById("groups-panel");
+                    const groupsCount = document.getElementById("groups-count");
+                    if (! this.#local_db.length)  {
                         newGroup.active = true;
                     };
-                    myTasks.push(newGroup);
+                    this.#local_db.push(newGroup);
                     saveData();
-                    groupPanel.insertAdjacentHTML("beforeend", `
-                        ${myTasks.length == 1 ? 
+                    groupsPanel.insertAdjacentHTML("beforeend", `
+                        ${this.#local_db.length == 1 ? 
                         `<a id="${newGroup.uuid}" class="panel-block is-radiusless has-background-info has-text-white">${newGroup.name}</a>` 
                         : `<a id="${newGroup.uuid}" class="panel-block is-radiusless">${newGroup.name}</a>`}
                     `);
-                    groupCount.textContent = myTasks.length;
+                    groupsCount.textContent = this.#local_db.length;
                     document.getElementById(newGroup.uuid).addEventListener("click", el => {
-                        makeGroupActive(newGroup.uuid);
+                        toggleActiveGroup(newGroup.uuid);
                     });
                 };
                 GroupModal.close();
@@ -100,7 +101,12 @@ export default class GroupModal {
                         <button class="delete group-modal-close" aria-label="close"></button>
                     </header>
                     <section class="modal-card-body">
-                        <input id="group-modal-input" class="input" type="text" placeholder="Enter group name">
+                        <div class="field">
+                            <label class="label">Group name:</label>
+                            <div class="control">
+                                <input id="group-modal-input" class="input" type="text">
+                            </div>
+                        </div>
                     </section>
                     <footer class="modal-card-foot">
                         <button id="group-modal-apply" class="button is-success">Apply</button>

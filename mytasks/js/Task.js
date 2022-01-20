@@ -1,9 +1,9 @@
-export default class {
+export default class Task {
 
     #uuid; #title; #message; #created; #active;
     
     constructor(title, message) {
-        this.#uuid = crypto.randomUUID();
+        this.#uuid = "task-" + crypto.randomUUID();
         this.#title = title;
         this.#message = message;
         this.#created = new Date().toLocaleString();

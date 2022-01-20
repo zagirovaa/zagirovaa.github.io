@@ -1,11 +1,8 @@
-import Task from "./Task.js";
-
-
-export default class {
+export default class Group {
 
     #uuid; #name; #tasks; #active;
     constructor(name) {
-        this.#uuid = crypto.randomUUID();
+        this.#uuid = "group-" + crypto.randomUUID();
         this.#name = name;
         this.#tasks = [];
         this.#active = false;
@@ -25,34 +22,8 @@ export default class {
     set active(condition) {
         this.#active = condition;
     };
-    getTask(uuid) {
-        for (let task in this.#tasks) {
-            if (task.uuid === uuid) {
-                return task;
-            };
-        };
-    };
-    addTask(title, message) {
-        let newTask = new Task(title, message);
-        this.#tasks.push(newTask);
-    };
-    editTask(uuid, title, message) {
-        let currentTask = this.getTask(uuid);
-        if (currentTask) {
-            currentTask.title = title;
-            currentTask.message = message;
-        };
-    };
-    removeTask(uuid) {
-        for (let i = 0; i < this.#tasks.length; i++) {
-            if (this.#tasks[i].uuid == uuid) {
-                this.#tasks.splice(i, 1);
-                break;
-            };
-        };
-    };
-    clearTasks() {
-        this.#tasks = [];
+    get tasks() {
+        return this.#tasks;
     };
     toJSON() {
         return {
