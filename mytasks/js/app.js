@@ -2,8 +2,9 @@ import AboutModal from "../components/AboutModal.js";
 import GroupModal from "../components/GroupModal.js";
 import TaskModal from "../components/TaskModal.js";
 
+// Service Worker registration block
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("../mytasks/sw.js", { scope: "." }).then(reg => {
+    navigator.serviceWorker.register("../sw.js", { scope: "." }).then(reg => {
         if(reg.installing) {
             console.log("Service worker installing");
         } else if (reg.waiting) {
@@ -19,7 +20,7 @@ if ("serviceWorker" in navigator) {
 let localDB = [];
 let pagesCount = 0;
 let currentPage = 0;
-const TASKS_PER_PAGE = 10;
+const TASKS_PER_PAGE = 5;
 
 const helpContext = {
     "title": "About",
@@ -35,6 +36,7 @@ const modalMode = {
 
 loadData();
 
+// Navbar burger event handler setting
 document.addEventListener("DOMContentLoaded", () => {
     setMenuItemsEventListeners();
     const navbarBurger = document.querySelector(".navbar-burger");
@@ -46,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+// Function loads all saved data from localStorage
 function getData() {
 
     localDB = JSON.parse(localStorage.getItem("localDB")) || [];
@@ -53,6 +56,7 @@ function getData() {
 };
 
 
+// Function saves all data to localStorage
 function saveData() {
 
     localStorage.setItem("localDB", JSON.stringify(localDB));
@@ -60,9 +64,11 @@ function saveData() {
 };
 
 
+// On first start (reload) page loading subroutine
 function loadData() {
 
     getData();
+    // No need to load anything if there is no data
     if (localDB.length) {
         const groupsPanel = document.getElementById("groups-panel");
         const groupsCount = document.getElementById("groups-count");
@@ -74,11 +80,13 @@ function loadData() {
         groupsPanel.insertAdjacentHTML("beforeend", renderGroups);
         drawActiveGroup(activeGroup.uuid);
         groupsCount.textContent = localDB.length;
+        // Groups event handlers
         localDB.forEach(el => {
             document.getElementById(el.uuid).addEventListener("click", () => {
                 toggleActiveGroup(el.uuid);
             });
         });
+        // Tasks of active group are loaded if there is any
         if (activeGroup.tasks.length) {
             changePage();
         };
@@ -110,7 +118,7 @@ function groupExists(name) {
 function getActiveGroup() {
 
     if (localDB.length) {
-        for (const group of localDB) {
+        for (let group of localDB) {
             if (group.active) {
                 return group;
             };
@@ -203,7 +211,7 @@ function getActiveTask() {
 
     const activeGroup = getActiveGroup();
     if (activeGroup.tasks.length) {
-        for (const task of activeGroup.tasks) {
+        for (let task of activeGroup.tasks) {
             if (task.active) {
                 return task;
             };
@@ -298,13 +306,11 @@ function clearTasksPanel() {
         el.remove();
     });
     document.getElementById("tasks-count").textContent = "0";
-    currentPage = 0;
-    pagesCount = 0;
-    pagination.textContent = `${currentPage} of ${pagesCount}`;
 
 }
 
 
+// 
 function getCurrentPageTasks() {
 
     const activeGroup = getActiveGroup();
@@ -334,49 +340,51 @@ function changePage() {
 }
 
 
+// 
 function updateTasksList() {
 
     const activeGroup = getActiveGroup();
     const pagination = document.getElementById("pagination");
-    clearTasksPanel();
-    if (activeGroup.tasks.length) {
-        const tasksPanel = document.getElementById("tasks-panel");
-        const tasksCount = document.getElementById("tasks-count");
-        const activeTask = getActiveTask();
-        const outputList = getCurrentPageTasks();
-        const renderTasks = outputList.reduce((result, current) => {
-            result += `
-                <a id="${current.uuid}" class="panel-block is-radiusless">
-                    <div class="card is-shadowless">
-                        <div class="card-content is-radiusless">
-                            <div class="media">
-                                <div class="media-content">
-                                    <p class="title is-4">${current.title}</p>
-                                    <p class="subtitle is-6">
-                                        <time datetime="${current.created}">${current.created}</time>
-                                    </p>
+    if (activeGroup) {
+        clearTasksPanel();
+        if (activeGroup.tasks.length) {
+            const tasksPanel = document.getElementById("tasks-panel");
+            const tasksCount = document.getElementById("tasks-count");
+            const outputList = getCurrentPageTasks();
+            const renderTasks = outputList.reduce((result, current) => {
+                result += `
+                    <a id="${current.uuid}" class="panel-block is-radiusless">
+                        <div class="card is-shadowless">
+                            <div class="card-content is-radiusless">
+                                <div class="media">
+                                    <div class="media-content">
+                                        <p class="title is-4">${current.title}</p>
+                                        <p class="subtitle is-6">
+                                            <time datetime="${current.created}">${current.created}</time>
+                                        </p>
+                                    </div>
                                 </div>
+                                <div class="content">${current.message}</div>
                             </div>
-                            <div class="content">${current.message}</div>
                         </div>
-                    </div>
-                </a>
-            `;
-            return result;
-        }, "");
-        tasksPanel.insertAdjacentHTML("beforeend", renderTasks);
-        toggleActiveTask(outputList[0].uuid);
-        tasksCount.textContent = activeGroup.tasks.length;
-        outputList.forEach(el => {
-            document.getElementById(el.uuid).addEventListener("click", () => {
-                toggleActiveTask(el.uuid);
+                    </a>
+                `;
+                return result;
+            }, "");
+            tasksPanel.insertAdjacentHTML("beforeend", renderTasks);
+            toggleActiveTask(outputList[0].uuid);
+            tasksCount.textContent = activeGroup.tasks.length;
+            outputList.forEach(el => {
+                document.getElementById(el.uuid).addEventListener("click", () => {
+                    toggleActiveTask(el.uuid);
+                });
             });
-        });
-    } else {
-        currentPage = 0;
-        pagesCount = 0;
+        } else {
+            currentPage = 0;
+            pagesCount = 0;
+        };
+        pagination.textContent = `${currentPage} of ${pagesCount}`;
     };
-    pagination.textContent = `${currentPage} of ${pagesCount}`;
 
 }
 
@@ -385,7 +393,7 @@ function updateTasksList() {
     Subroutines related to event handling
  */
 
-// 
+// Menu items event handlers with associated functions
 function setMenuItemsEventListeners() {
 
     const menuItems = Array.from(document.querySelectorAll("a.navbar-item"));
@@ -437,6 +445,7 @@ function setMenuItemsEventListeners() {
 };
 
 
+// Function adds new group
 function addGroup() {
 
     const groupModal = new GroupModal(modalMode.add, localDB);
@@ -445,6 +454,7 @@ function addGroup() {
 };
 
 
+// Function edits active group
 function editGroup() {
 
     if (getActiveGroup()) {
@@ -455,6 +465,7 @@ function editGroup() {
 };
 
 
+// Function deletes active group
 function deleteGroup() {
 
     const activeGroupID = getActiveGroup().uuid;
@@ -476,16 +487,22 @@ function deleteGroup() {
 };
 
 
+// Function removes all groups
 function clearGroups() {
 
+    const pagination = document.getElementById("pagination");
     localStorage.clear();
     localDB = [];
     clearGroupsPanel();
     clearTasksPanel();
+    currentPage = 0;
+    pagesCount = 0;
+    pagination.textContent = `${currentPage} of ${pagesCount}`;
 
 };
 
 
+// Function adds new task to the active group
 function addTask() {
 
     const taskModal = new TaskModal(modalMode.add);
@@ -494,6 +511,7 @@ function addTask() {
 };
 
 
+// Function edits active task in the active group
 function editTask() {
 
     const taskModal = new TaskModal(modalMode.edit);
@@ -502,6 +520,7 @@ function editTask() {
 };
 
 
+// Function removes active task from the active group
 function deleteTask() {
 
     const activeGroup = getActiveGroup();
@@ -526,16 +545,22 @@ function deleteTask() {
 };
 
 
+// Function removes all tasks from the active group
 function clearTasks() {
 
     const activeGroup = getActiveGroup();
+    const pagination = document.getElementById("pagination");
     activeGroup.tasks.length = 0;
     saveData();
     clearTasksPanel();
+    currentPage = 0;
+    pagesCount = 0;
+    pagination.textContent = `${currentPage} of ${pagesCount}`;
 
 };
 
 
+// Function shows a dialog about the app
 function showAbout() {
 
     const aboutModal = new AboutModal(helpContext);
@@ -544,14 +569,18 @@ function showAbout() {
 };
 
 
+// Function moves to the first page
 function moveToFirstPage() {
 
-    currentPage = 1;
-    changePage();
+    if (pagesCount > 0) {
+        currentPage = 1;
+        changePage();
+    };
 
 };
 
 
+// Function moves to the previous page
 function moveToPreviousPage() {
 
     if (currentPage > 1) {
@@ -562,6 +591,7 @@ function moveToPreviousPage() {
 };
 
 
+// Function moves to the next page
 function moveToNextPage() {
 
     if (currentPage < pagesCount) {
@@ -572,14 +602,18 @@ function moveToNextPage() {
 };
 
 
+// Function moves to the last page
 function moveToLastPage() {
 
-    currentPage = pagesCount;
-    changePage();
+    if (pagesCount > 0) {
+        currentPage = pagesCount;
+        changePage();
+    };
 
 };
 
 
+// Export block
 export {
     saveData, 
     groupExists, 
