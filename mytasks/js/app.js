@@ -4,7 +4,7 @@ import TaskModal from "../components/TaskModal.js";
 
 // Service Worker registration block
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("../sw.js", { scope: "." }).then(reg => {
+    navigator.serviceWorker.register("../mytasks/sw.js", { scope: "." }).then(reg => {
         if(reg.installing) {
             console.log("Service worker installing");
         } else if (reg.waiting) {
