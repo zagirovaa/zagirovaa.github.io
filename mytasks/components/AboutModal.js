@@ -36,6 +36,7 @@ export default class AboutModal {
                             ${this.#developer}
                         </h6>
                     </section>
+                    <footer class="modal-card-foot"></footer>
                 </div>
             </div>
         `;

@@ -1,4 +1,5 @@
 import Task from "../js/Task.js";
+import MessageBox from "./MessageBox.js";
 import { 
     saveData, 
     getActiveGroup, 
@@ -74,7 +75,7 @@ export default class TaskModal {
             };
             this.close();
         } else {
-            alert("Fill in all the fields.");
+            MessageBox.show("You did not fill one of the required fields.");
         };
     };
 

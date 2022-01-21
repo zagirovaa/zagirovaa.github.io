@@ -124,7 +124,7 @@ function getActiveGroup() {
             };
         };
     };
-    return {};
+    return false;
 
 }
 
@@ -210,14 +210,14 @@ function clearGroupsPanel() {
 function getActiveTask() {
 
     const activeGroup = getActiveGroup();
-    if (activeGroup.tasks.length) {
+    if (activeGroup && activeGroup.tasks.length) {
         for (let task of activeGroup.tasks) {
             if (task.active) {
                 return task;
             };
         };
     };
-    return {};
+    return false;
 
 }
 
@@ -300,7 +300,6 @@ function toggleActiveTask(uuid) {
 function clearTasksPanel() {
 
     const panel = document.querySelector("#tasks-panel .panel-heading");
-    const pagination = document.getElementById("pagination");
     const allSiblings = [...panel.parentElement.children].filter(child => child !== panel);
     allSiblings.forEach(el => {
         el.remove();
@@ -468,21 +467,23 @@ function editGroup() {
 // Function deletes active group
 function deleteGroup() {
 
-    const activeGroupID = getActiveGroup().uuid;
-    const currentActiveIndex = getGroupIndex(activeGroupID);
-    const groupCount = document.getElementById("groups-count");
-    if (localDB.length > 1) {
-        if (localDB[currentActiveIndex - 1]) {
-            toggleActiveGroup(localDB[currentActiveIndex - 1].uuid);
-        } else {
-            toggleActiveGroup(localDB[currentActiveIndex + 1].uuid);
+    if (getActiveGroup()) {
+        const activeGroupID = getActiveGroup().uuid;
+        const currentActiveIndex = getGroupIndex(activeGroupID);
+        const groupCount = document.getElementById("groups-count");
+        if (localDB.length > 1) {
+            if (localDB[currentActiveIndex - 1]) {
+                toggleActiveGroup(localDB[currentActiveIndex - 1].uuid);
+            } else {
+                toggleActiveGroup(localDB[currentActiveIndex + 1].uuid);
+            };
         };
+        localDB.splice(currentActiveIndex, 1);
+        saveData();
+        document.getElementById(activeGroupID).remove();
+        groupCount.textContent = localDB.length;
+        drawActiveGroup(getActiveGroup().uuid);
     };
-    localDB.splice(currentActiveIndex, 1);
-    saveData();
-    document.getElementById(activeGroupID).remove();
-    groupCount.textContent = localDB.length;
-    drawActiveGroup(getActiveGroup().uuid);
 
 };
 
@@ -490,14 +491,16 @@ function deleteGroup() {
 // Function removes all groups
 function clearGroups() {
 
-    const pagination = document.getElementById("pagination");
-    localStorage.clear();
-    localDB = [];
-    clearGroupsPanel();
-    clearTasksPanel();
-    currentPage = 0;
-    pagesCount = 0;
-    pagination.textContent = `${currentPage} of ${pagesCount}`;
+    if (localDB.length) {
+        const pagination = document.getElementById("pagination");
+        localStorage.clear();
+        localDB = [];
+        clearGroupsPanel();
+        clearTasksPanel();
+        currentPage = 0;
+        pagesCount = 0;
+        pagination.textContent = `${currentPage} of ${pagesCount}`;
+    };
 
 };
 
@@ -514,8 +517,10 @@ function addTask() {
 // Function edits active task in the active group
 function editTask() {
 
-    const taskModal = new TaskModal(modalMode.edit);
-    taskModal.show();
+    if (getActiveTask()) {
+        const taskModal = new TaskModal(modalMode.edit);
+        taskModal.show();
+    };
 
 };
 
@@ -524,7 +529,7 @@ function editTask() {
 function deleteTask() {
 
     const activeGroup = getActiveGroup();
-    if (activeGroup.tasks.length) {
+    if (activeGroup && activeGroup.tasks.length) {
         const activeTaskID = getActiveTask().uuid;
         const currentActiveIndex = getTaskIndex(activeTaskID);
         const taskCount = document.getElementById("tasks-count");
@@ -549,13 +554,15 @@ function deleteTask() {
 function clearTasks() {
 
     const activeGroup = getActiveGroup();
-    const pagination = document.getElementById("pagination");
-    activeGroup.tasks.length = 0;
-    saveData();
-    clearTasksPanel();
-    currentPage = 0;
-    pagesCount = 0;
-    pagination.textContent = `${currentPage} of ${pagesCount}`;
+    if (activeGroup && activeGroup.tasks.length) {
+        const pagination = document.getElementById("pagination");
+        activeGroup.tasks.length = 0;
+        saveData();
+        clearTasksPanel();
+        currentPage = 0;
+        pagesCount = 0;
+        pagination.textContent = `${currentPage} of ${pagesCount}`;
+    };
 
 };
 
@@ -616,13 +623,11 @@ function moveToLastPage() {
 // Export block
 export {
     saveData, 
-    groupExists, 
     getActiveGroup, 
+    groupExists, 
     getGroupIndex, 
     toggleActiveGroup, 
-    drawActiveTask, 
-    getActiveTask,
+    getActiveTask, 
     getTaskIndex, 
-    makeTaskActive, 
     updateTasksList
 };

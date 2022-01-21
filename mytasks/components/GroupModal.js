@@ -1,4 +1,5 @@
 import Group from "../js/Group.js";
+import MessageBox from "./MessageBox.js";
 import {
     saveData, 
     groupExists, 
@@ -51,7 +52,7 @@ export default class GroupModal {
         const groupName = document.getElementById("group-modal-input").value.trim() || "";
         if (groupName) {
             if (groupExists(groupName)) {
-                alert("These is already a group with an identical name.");
+                MessageBox.show("These is already a group with an identical name.");
             } else {
                 if (mode) {
                     const activeGroup = getActiveGroup();
@@ -83,7 +84,7 @@ export default class GroupModal {
                 GroupModal.close();
             };
         } else {
-            alert("Enter group name.");
+            MessageBox.show("You did not enter a group name.");
         };
     };
 
