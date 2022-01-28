@@ -10,7 +10,7 @@ export default class AboutModal {
     };
     show() {
         document.getElementById("app").insertAdjacentHTML("beforeend", this.render());
-        document.getElementById("about-modal-close").addEventListener("click", this.close);
+        document.getElementById("about-modal-close").addEventListener("click", this.close, false);
     };
     close() {
         document.getElementById("about-modal").remove();

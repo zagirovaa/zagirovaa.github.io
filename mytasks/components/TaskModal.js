@@ -30,17 +30,17 @@ export default class TaskModal {
         const taskModalInput = document.getElementById("task-modal-input");
         const taskModalTextArea = document.getElementById("task-modal-textarea");
         taskModalClose.forEach(el => {
-            el.addEventListener("click", this.close);
+            el.addEventListener("click", this.close, false);
         });
         taskModalApplyBtn.addEventListener("click", () => {
             this.apply(this.#mode);
-        });
+        }, false);
         taskModalInput.addEventListener("keyup", event => {
             if (event.key === "Enter") {
                 event.preventDefault();
                 taskModalApplyBtn.click();
             };
-        });
+        }, false);
         if (this.#mode) {
             const activeTask = getActiveTask();
             taskModalInput.value = activeTask.title;

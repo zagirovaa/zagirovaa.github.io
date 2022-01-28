@@ -30,17 +30,17 @@ export default class GroupModal {
         const groupModalApplyBtn = document.getElementById("group-modal-apply");
         const groupModalInput = document.getElementById("group-modal-input");
         groupModalClose.forEach(el => {
-            el.addEventListener("click", GroupModal.close);
+            el.addEventListener("click", this.close, false);
         });
         groupModalApplyBtn.addEventListener("click", () => {
             this.apply(this.#mode);
-        });
+        }, false);
         groupModalInput.addEventListener("keyup", event => {
             if (event.key === "Enter") {
                 event.preventDefault();
                 groupModalApplyBtn.click();
             };
-        });
+        }, false);
         if (this.#mode) {
             const activeGroup = getActiveGroup();
             groupModalInput.value = activeGroup.name;
@@ -79,16 +79,16 @@ export default class GroupModal {
                     groupsCount.textContent = this.#local_db.length;
                     document.getElementById(newGroup.uuid).addEventListener("click", el => {
                         toggleActiveGroup(newGroup.uuid);
-                    });
+                    }, false);
                 };
-                GroupModal.close();
+                this.close();
             };
         } else {
             MessageBox.show("You did not enter a group name.");
         };
     };
 
-    static close() {
+    close() {
         document.getElementById("group-modal").remove();
     };
 

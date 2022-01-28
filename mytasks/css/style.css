@@ -17,6 +17,10 @@ body::-webkit-scrollbar {
     width: 100%;
 }
 
+nav.panel {
+    cursor: pointer;
+}
+
 @media only screen and (min-width: 768px) {
     .no-padding-right {
         padding-right: 0 !important;

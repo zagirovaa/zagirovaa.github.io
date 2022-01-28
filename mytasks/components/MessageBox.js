@@ -5,7 +5,7 @@ export default class MessageBox {
     static show(message) {
         this.message = message;
         document.getElementById("app").insertAdjacentHTML("beforeend", this.render());
-        document.getElementById("message-modal-close").addEventListener("click", this.close);
+        document.getElementById("message-modal-close").addEventListener("click", this.close, false);
     };
     static close() {
         document.getElementById("message-modal").remove();

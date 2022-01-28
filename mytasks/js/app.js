@@ -1,8 +1,9 @@
 import AboutModal from "../components/AboutModal.js";
 import GroupModal from "../components/GroupModal.js";
 import TaskModal from "../components/TaskModal.js";
+import SettingsModal from "../components/SettingsModal.js";
 
-// Service Worker registration block
+
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js", { scope: "." }).then(reg => {
         if(reg.installing) {
@@ -17,10 +18,13 @@ if ("serviceWorker" in navigator) {
     });
 };
 
+
 let localDB = [];
-let pagesCount = 0;
-let currentPage = 0;
-const TASKS_PER_PAGE = 5;
+const settings = {
+    "pagesCount": 0,
+    "currentPage": 0,
+    "tasksPerPage": 5
+};
 
 const helpContext = {
     "title": "About",
@@ -34,72 +38,108 @@ const modalMode = {
     "edit": 1
 };
 
-loadData();
 
-// Navbar burger event handler setting
+getData();
+if (localDB.length) {
+    const groupsPanel = document.getElementById("groups-panel");
+    const tasksPanel = document.getElementById("tasks-panel");
+    const groupsCount = document.getElementById("groups-count");
+    const activeGroup = getActiveGroup();
+    const renderGroups = localDB.reduce((result, current) => {
+        result += `<a id="${current.uuid}" class="panel-block is-radiusless">${current.name}</a>`;
+        return result;
+    }, "");
+    groupsPanel.insertAdjacentHTML("beforeend", renderGroups);
+    drawActiveGroup(activeGroup.uuid);
+    groupsCount.textContent = localDB.length;
+    localDB.forEach(el => {
+        document.getElementById(el.uuid).addEventListener("click", group => {
+            group.stopPropagation();
+            toggleActiveGroup(el.uuid);
+        }, false);
+    });
+    if (activeGroup.tasks.length) {
+        changePage();
+    };
+    groupsPanel.addEventListener("click", toggleGroupsPanel, false);
+    tasksPanel.addEventListener("click", toggleTasksPanel, false);
+};
+
+
 document.addEventListener("DOMContentLoaded", () => {
-    setMenuItemsEventListeners();
+    const menuItems = Array.from(document.querySelectorAll("a.navbar-item"));
+    menuItems.forEach(el => {
+        const menuText = el.textContent;
+        switch (menuText) {
+            case "Add new group":
+                el.addEventListener("click", addGroup, false);
+                break;
+            case "Edit current group":
+                el.addEventListener("click", editGroup, false);
+                break;
+            case "Delete current group":
+                el.addEventListener("click", deleteGroup, false);
+                break;
+            case "Clear all groups":
+                el.addEventListener("click", clearGroups, false);
+                break;
+            case "Add new task":
+                el.addEventListener("click", addTask, false);
+                break;
+            case "Edit current task":
+                el.addEventListener("click", editTask, false);
+                break;
+            case "Delete current task":
+                el.addEventListener("click", deleteTask, false);
+                break;
+            case "Clear all tasks":
+                el.addEventListener("click", clearTasks, false);
+                break;
+            case "Settings":
+                el.addEventListener("click", showSettings, false);
+                break;
+            case "About":
+                el.addEventListener("click", showAbout, false);
+                break;
+            case "«":
+                el.addEventListener("click", moveToFirstPage, false);
+                break;
+            case "‹":
+                el.addEventListener("click", moveToPreviousPage, false);
+                break;
+            case "›":
+                el.addEventListener("click", moveToNextPage, false);
+                break;
+            case "»":
+                el.addEventListener("click", moveToLastPage, false);
+                break;
+        };
+    });
     const navbarBurger = document.querySelector(".navbar-burger");
     navbarBurger.addEventListener("click", () => {
         const target = document.getElementById(navbarBurger.dataset.target);
         navbarBurger.classList.toggle("is-active");
         target.classList.toggle("is-active");
-    });
+    }, false);
 });
 
 
-// Function loads all saved data from localStorage
 function getData() {
 
     localDB = JSON.parse(localStorage.getItem("localDB")) || [];
+    settings.tasksPerPage = JSON.parse(localStorage.getItem("tasksPerPage")) || 0;
 
 };
 
 
-// Function saves all data to localStorage
 function saveData() {
 
     localStorage.setItem("localDB", JSON.stringify(localDB));
+    localStorage.setItem("tasksPerPage", JSON.stringify(settings.tasksPerPage));
 
 };
 
 
-// On first start (reload) page loading subroutine
-function loadData() {
-
-    getData();
-    // No need to load anything if there is no data
-    if (localDB.length) {
-        const groupsPanel = document.getElementById("groups-panel");
-        const groupsCount = document.getElementById("groups-count");
-        const activeGroup = getActiveGroup();
-        const renderGroups = localDB.reduce((result, current) => {
-            result += `<a id="${current.uuid}" class="panel-block is-radiusless">${current.name}</a>`;
-            return result;
-        }, "");
-        groupsPanel.insertAdjacentHTML("beforeend", renderGroups);
-        drawActiveGroup(activeGroup.uuid);
-        groupsCount.textContent = localDB.length;
-        // Groups event handlers
-        localDB.forEach(el => {
-            document.getElementById(el.uuid).addEventListener("click", () => {
-                toggleActiveGroup(el.uuid);
-            });
-        });
-        // Tasks of active group are loaded if there is any
-        if (activeGroup.tasks.length) {
-            changePage();
-        };
-    };
-
-}
-
-
-/* 
-    Subroutines related to groups
- */
-
-// Checks whether group with a given name already exists
 function groupExists(name) {
 
     if (localDB.length) {
@@ -114,7 +154,6 @@ function groupExists(name) {
 }
 
 
-// Returnes a group that is active
 function getActiveGroup() {
 
     if (localDB.length) {
@@ -129,7 +168,6 @@ function getActiveGroup() {
 }
 
 
-// Returns an index of active group
 function getGroupIndex(uuid) {
 
     if (localDB.length) {
@@ -144,7 +182,6 @@ function getGroupIndex(uuid) {
 }
 
 
-// Changes background of group element with a given uuid to be active
 function drawActiveGroup(uuid) {
 
     const activeGroup = document.getElementById(uuid) || null;
@@ -155,7 +192,6 @@ function drawActiveGroup(uuid) {
 }
 
 
-// Changes background of group element with a given uuid to be inactive
 function drawInActiveGroup() {
 
     const activeGroup = document.getElementById(getActiveGroup().uuid) || null;
@@ -166,7 +202,6 @@ function drawInActiveGroup() {
 }
 
 
-// Changes current active group to the one with the given uuid
 function makeGroupActive(uuid) {
 
     localDB[getGroupIndex(getActiveGroup().uuid)].active = false;
@@ -175,11 +210,10 @@ function makeGroupActive(uuid) {
 };
 
 
-// Toggles active group
 function toggleActiveGroup(uuid) {
 
-    currentPage = 0;
-    pagesCount = 0;
+    settings.currentPage = 0;
+    settings.pagesCount = 0;
     drawInActiveGroup();
     drawActiveGroup(uuid);
     makeGroupActive(uuid);
@@ -189,7 +223,22 @@ function toggleActiveGroup(uuid) {
 }
 
 
-// Clears the contents of panel with group elements
+function toggleGroupsPanel() {
+
+    const groups = Array.from(document.querySelectorAll("#groups-panel a"));
+    if (groups.length) {
+        for (let group of groups) {
+            if (group.style.display == "block" || group.style.display == "") {
+                group.style.display = "none";
+            } else {
+                group.style.display = "block";
+            };
+        };
+    };
+
+}
+
+
 function clearGroupsPanel() {
 
     const panel = document.querySelector("#groups-panel .panel-heading");
@@ -202,11 +251,6 @@ function clearGroupsPanel() {
 }
 
 
-/* 
-    Subroutines related to tasks
- */
-
-// Returnes a task that is active
 function getActiveTask() {
 
     const activeGroup = getActiveGroup();
@@ -222,7 +266,6 @@ function getActiveTask() {
 }
 
 
-// Returns an index of active task
 function getTaskIndex(uuid) {
 
     const activeGroup = getActiveGroup();
@@ -238,7 +281,6 @@ function getTaskIndex(uuid) {
 }
 
 
-// Changes background of task element with a given uuid to be active
 function drawActiveTask(uuid) {
 
     const activeTask = document.getElementById(uuid);
@@ -255,7 +297,6 @@ function drawActiveTask(uuid) {
 }
 
 
-// Changes background of task element with a given uuid to be inactive
 function drawInActiveTask() {
 
     const activeTask = getActiveTask();
@@ -275,7 +316,6 @@ function drawInActiveTask() {
 }
 
 
-// Changes current active task to the one with the given uuid
 function makeTaskActive(uuid) {
 
     const activeGroup = getActiveGroup();
@@ -285,7 +325,6 @@ function makeTaskActive(uuid) {
 }
 
 
-// Toggles active task
 function toggleActiveTask(uuid) {
     
     drawInActiveTask();
@@ -296,7 +335,22 @@ function toggleActiveTask(uuid) {
 }
 
 
-// Clears the contents of panel with task elements
+function toggleTasksPanel() {
+
+    const tasks = Array.from(document.querySelectorAll("#tasks-panel a"));
+    if (tasks.length) {
+        for (let task of tasks) {
+            if (task.style.display == "block" || task.style.display == "") {
+                task.style.display = "none";
+            } else {
+                task.style.display = "block";
+            };
+        };
+    };
+
+}
+
+
 function clearTasksPanel() {
 
     const panel = document.querySelector("#tasks-panel .panel-heading");
@@ -309,27 +363,29 @@ function clearTasksPanel() {
 }
 
 
-// 
 function getCurrentPageTasks() {
 
     const activeGroup = getActiveGroup();
-    if (activeGroup.tasks.length <= TASKS_PER_PAGE) {
-        pagesCount = 1;
+    if (activeGroup.tasks.length <= settings.tasksPerPage) {
+        settings.pagesCount = 1;
+        settings.currentPage = 1;
     } else {
-        pagesCount = Math.ceil(activeGroup.tasks.length / TASKS_PER_PAGE);
+        settings.pagesCount = Math.ceil(activeGroup.tasks.length / settings.tasksPerPage);
+        if (settings.currentPage > settings.pagesCount) {
+            settings.currentPage = settings.pagesCount;
+        };
     };
-    if (currentPage == 0) {
-        currentPage = 1;
+    if (settings.currentPage == 0) {
+        settings.currentPage = 1;
     };
-    const startItem = currentPage * TASKS_PER_PAGE - TASKS_PER_PAGE;
-    const endItem = startItem + TASKS_PER_PAGE;
+    const startItem = settings.currentPage * settings.tasksPerPage - settings.tasksPerPage;
+    const endItem = startItem + settings.tasksPerPage;
     const outputList = activeGroup.tasks.slice(startItem, endItem);
     return outputList;
 
 }
 
 
-// 
 function changePage() {
 
     const outputList = getCurrentPageTasks();
@@ -339,7 +395,6 @@ function changePage() {
 }
 
 
-// 
 function updateTasksList() {
 
     const activeGroup = getActiveGroup();
@@ -374,77 +429,21 @@ function updateTasksList() {
             toggleActiveTask(outputList[0].uuid);
             tasksCount.textContent = activeGroup.tasks.length;
             outputList.forEach(el => {
-                document.getElementById(el.uuid).addEventListener("click", () => {
+                document.getElementById(el.uuid).addEventListener("click", task => {
+                    task.stopPropagation();
                     toggleActiveTask(el.uuid);
-                });
+                }, false);
             });
         } else {
-            currentPage = 0;
-            pagesCount = 0;
+            settings.currentPage = 0;
+            settings.pagesCount = 0;
         };
-        pagination.textContent = `${currentPage} of ${pagesCount}`;
+        pagination.textContent = `${settings.currentPage} of ${settings.pagesCount}`;
     };
 
 }
 
 
-/* 
-    Subroutines related to event handling
- */
-
-// Menu items event handlers with associated functions
-function setMenuItemsEventListeners() {
-
-    const menuItems = Array.from(document.querySelectorAll("a.navbar-item"));
-    menuItems.forEach(el => {
-        const menuText = el.textContent;
-        switch (menuText) {
-            case "Add new group":
-                el.addEventListener("click", addGroup);
-                break;
-            case "Edit current group":
-                el.addEventListener("click", editGroup);
-                break;
-            case "Delete current group":
-                el.addEventListener("click", deleteGroup);
-                break;
-            case "Clear all groups":
-                el.addEventListener("click", clearGroups);
-                break;
-            case "Add new task":
-                el.addEventListener("click", addTask);
-                break;
-            case "Edit current task":
-                el.addEventListener("click", editTask);
-                break;
-            case "Delete current task":
-                el.addEventListener("click", deleteTask);
-                break;
-            case "Clear all tasks":
-                el.addEventListener("click", clearTasks);
-                break;
-            case "About":
-                el.addEventListener("click", showAbout);
-                break;
-            case "«":
-                el.addEventListener("click", moveToFirstPage);
-                break;
-            case "‹":
-                el.addEventListener("click", moveToPreviousPage);
-                break;
-            case "›":
-                el.addEventListener("click", moveToNextPage);
-                break;
-            case "»":
-                el.addEventListener("click", moveToLastPage);
-                break;
-        };
-    });
-
-};
-
-
-// Function adds new group
 function addGroup() {
 
     const groupModal = new GroupModal(modalMode.add, localDB);
@@ -453,7 +452,6 @@ function addGroup() {
 };
 
 
-// Function edits active group
 function editGroup() {
 
     if (getActiveGroup()) {
@@ -464,7 +462,6 @@ function editGroup() {
 };
 
 
-// Function deletes active group
 function deleteGroup() {
 
     if (getActiveGroup()) {
@@ -488,7 +485,6 @@ function deleteGroup() {
 };
 
 
-// Function removes all groups
 function clearGroups() {
 
     if (localDB.length) {
@@ -497,15 +493,14 @@ function clearGroups() {
         localDB = [];
         clearGroupsPanel();
         clearTasksPanel();
-        currentPage = 0;
-        pagesCount = 0;
-        pagination.textContent = `${currentPage} of ${pagesCount}`;
+        settings.currentPage = 0;
+        settings.pagesCount = 0;
+        pagination.textContent = `${settings.currentPage} of ${settings.pagesCount}`;
     };
 
 };
 
 
-// Function adds new task to the active group
 function addTask() {
 
     const taskModal = new TaskModal(modalMode.add);
@@ -514,7 +509,6 @@ function addTask() {
 };
 
 
-// Function edits active task in the active group
 function editTask() {
 
     if (getActiveTask()) {
@@ -525,14 +519,13 @@ function editTask() {
 };
 
 
-// Function removes active task from the active group
 function deleteTask() {
 
     const activeGroup = getActiveGroup();
     if (activeGroup && activeGroup.tasks.length) {
         const activeTaskID = getActiveTask().uuid;
         const currentActiveIndex = getTaskIndex(activeTaskID);
-        const taskCount = document.getElementById("tasks-count");
+        const tasksCount = document.getElementById("tasks-count");
         if (activeGroup.tasks.length > 1) {
             if (activeGroup.tasks[currentActiveIndex - 1]) {
                 makeTaskActive(activeGroup.tasks[currentActiveIndex - 1].uuid);
@@ -543,14 +536,13 @@ function deleteTask() {
         activeGroup.tasks.splice(currentActiveIndex, 1);
         saveData();
         document.getElementById(activeTaskID).remove();
-        taskCount.textContent = activeGroup.tasks.length;
+        tasksCount.textContent = activeGroup.tasks.length;
         updateTasksList();
     };
 
 };
 
 
-// Function removes all tasks from the active group
 function clearTasks() {
 
     const activeGroup = getActiveGroup();
@@ -559,15 +551,22 @@ function clearTasks() {
         activeGroup.tasks.length = 0;
         saveData();
         clearTasksPanel();
-        currentPage = 0;
-        pagesCount = 0;
-        pagination.textContent = `${currentPage} of ${pagesCount}`;
+        settings.currentPage = 0;
+        settings.pagesCount = 0;
+        pagination.textContent = `${settings.currentPage} of ${settings.pagesCount}`;
     };
 
 };
 
 
-// Function shows a dialog about the app
+function showSettings() {
+
+    const settingsModal = new SettingsModal(settings);
+    settingsModal.show();
+
+}
+
+
 function showAbout() {
 
     const aboutModal = new AboutModal(helpContext);
@@ -576,53 +575,49 @@ function showAbout() {
 };
 
 
-// Function moves to the first page
 function moveToFirstPage() {
 
-    if (pagesCount > 0) {
-        currentPage = 1;
+    if (settings.pagesCount > 0) {
+        settings.currentPage = 1;
         changePage();
     };
 
 };
 
 
-// Function moves to the previous page
 function moveToPreviousPage() {
 
-    if (currentPage > 1) {
-        currentPage -= 1;
+    if (settings.currentPage > 1) {
+        settings.currentPage -= 1;
         changePage();
     };
 
 };
 
 
-// Function moves to the next page
 function moveToNextPage() {
 
-    if (currentPage < pagesCount) {
-        currentPage += 1;
+    if (settings.currentPage < settings.pagesCount) {
+        settings.currentPage += 1;
         changePage();
     };
 
 };
 
 
-// Function moves to the last page
 function moveToLastPage() {
 
-    if (pagesCount > 0) {
-        currentPage = pagesCount;
+    if (settings.pagesCount > 0) {
+        settings.currentPage = settings.pagesCount;
         changePage();
     };
 
 };
 
 
-// Export block
 export {
     saveData, 
+    changePage, 
     getActiveGroup, 
     groupExists, 
     getGroupIndex, 
