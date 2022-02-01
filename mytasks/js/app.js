@@ -127,7 +127,10 @@ document.addEventListener("DOMContentLoaded", () => {
 function getData() {
 
     localDB = JSON.parse(localStorage.getItem("localDB")) || [];
-    settings.tasksPerPage = JSON.parse(localStorage.getItem("tasksPerPage")) || 0;
+    const tasksPerPage = JSON.parse(localStorage.getItem("tasksPerPage")) || 0;
+    if (tasksPerPage) {
+        settings.tasksPerPage = tasksPerPage;
+    };
 
 };
 

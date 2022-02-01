@@ -1,5 +1,5 @@
 import MessageBox from "./MessageBox.js";
-import { saveData } from "../js/app.js";
+import { saveData, changePage } from "../js/app.js";
 
 
 export default class SettingsModal {
@@ -28,8 +28,8 @@ export default class SettingsModal {
         if (number.value > 0 && number.value < 51) {
             this.#settings.tasksPerPage = Number(number.value);
             saveData();
+            changePage();
             this.close();
-            MessageBox.show("Reload the page for the settings to take effect.");
         } else {
             MessageBox.show("Enter a value in the range from 1 to 50.");
         };
